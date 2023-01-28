@@ -25,14 +25,16 @@ const Statistics = ({good, neutral, bad}) => {
         )
     }
     return (
-        <>
+        <table>
+            <tbody>
             <StatisticDisplay text="Good:" value={good}/>
             <StatisticDisplay text="Neutral:" value={neutral}/>
             <StatisticDisplay text="Bad:" value={bad}/>
             <StatisticDisplay text="All:" value={good + neutral + bad}/>
             <StatisticDisplay text="Average:" value={(good - bad) / (good + neutral + bad)}/>
             <StatisticDisplay text="Positive:" value={good / (good + neutral + bad) * 100 + "%"}/>
-        </>
+            </tbody>
+        </table>
     )
 }
 
@@ -44,7 +46,10 @@ const FeedbackButton = ({text, onClick}) => {
 
 const StatisticDisplay = ({text, value}) => {
     return (
-        <p>{text} {value}</p>
+        <tr>
+            <td>{text}</td>
+            <td>{value}</td>
+        </tr>
     )
 }
 
