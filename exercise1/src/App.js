@@ -20,6 +20,11 @@ const App = () => {
 }
 
 const Statistics = ({good, neutral, bad}) => {
+    if (good + neutral + bad === 0) {
+        return (
+            <p>No feedback given</p>
+        )
+    }
     return (
         <>
             <StatisticDisplay text="Good:" value={good}/>
