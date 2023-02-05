@@ -29,6 +29,19 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Filter filter={filter} setFilter={setFilter}/>
+            <NewContact newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}
+                        handleAddPerson={handleAddPerson}/>
+            <People persons={persons} filter={filter}/>
+        </div>
+
+    )
+}
+
+const Filter = ({filter, setFilter}) => {
+    return (
+        <div>
+            <h3>Filter</h3>
             <div>
                 Filter shown with:
                 <input
@@ -36,7 +49,14 @@ const App = () => {
                     onChange={event => setFilter(event.target.value)}
                 />
             </div>
-            <h2>Add New Contact</h2>
+        </div>
+    )
+}
+
+const NewContact = ({newName, setNewName, newNumber, setNewNumber, handleAddPerson}) => {
+    return (
+        <div>
+            <h3>Add New Contact</h3>
             <form>
                 <div>
                     name:
@@ -56,7 +76,14 @@ const App = () => {
                     <button type="submit" onClick={handleAddPerson}>add</button>
                 </div>
             </form>
-            <h2>People</h2>
+        </div>
+    )
+}
+
+const People = ({persons, filter}) => {
+    return (
+        <div>
+            <h3>People</h3>
             <div>
                 {
                     persons.filter(person =>
@@ -66,7 +93,6 @@ const App = () => {
                     )
                 }
             </div>
-
         </div>
 
     )
