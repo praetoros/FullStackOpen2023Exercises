@@ -59,12 +59,9 @@ const App = () => {
             <h2>People</h2>
             <div>
                 {
-                    persons.filter(person => {
-                        if (person.name.toLowerCase().includes(filter.toLowerCase())) {
-                            return (person)
-                        }
-                        return null
-                    }).map(person =>
+                    persons.filter(person =>
+                        person.name.toLowerCase().includes(filter.toLowerCase())
+                    ).map(person =>
                         <div key={person.name}>{person.name} {person.number}</div>
                     )
                 }
