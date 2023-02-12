@@ -16,7 +16,7 @@ const App = () => {
 
     const handleAddPerson = (event) => {
         event.preventDefault()
-        const personObject = {
+        let personObject = {
             name: newName,
             number: newNumber
         }
@@ -25,11 +25,21 @@ const App = () => {
             return
         }
         phonebookService.create(personObject)
-            .then(() => {
+            .then((data) => {
+                personObject = {...personObject, id: data.id}
                 setPersons(persons.concat(personObject))
             })
         setNewName('')
         setNewNumber('')
+    }
+
+    const handleDelete = (id) => {
+        if (window.confirm(`Delete ${persons.find(person => person.id === id).name}?`)) {
+            phonebookService.remove(id)
+                .then(() => {
+                    setPersons(persons.filter(person => person.id !== id))
+                });
+        }
     }
 
     return (
@@ -38,7 +48,7 @@ const App = () => {
             <Filter filter={filter} setFilter={setFilter}/>
             <NewContact newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}
                         handleAddPerson={handleAddPerson}/>
-            <People persons={persons} filter={filter}/>
+            <People persons={persons} filter={filter} handleDelete={handleDelete}/>
         </div>
 
     )
@@ -86,7 +96,8 @@ const NewContact = ({newName, setNewName, newNumber, setNewNumber, handleAddPers
     )
 }
 
-const People = ({persons, filter}) => {
+const People = ({persons, filter, handleDelete}) => {
+
     return (
         <div>
             <h3>People</h3>
@@ -95,7 +106,13 @@ const People = ({persons, filter}) => {
                     persons.filter(person =>
                         person.name.toLowerCase().includes(filter.toLowerCase())
                     ).map(person =>
-                        <div key={person.name}>{person.name} {person.number}</div>
+                        <div key={person.id}>
+                            {person.name} {person.number}
+                            <button onClick={() => {
+                                handleDelete(person.id)
+                            }}>Delete
+                            </button>
+                        </div>
                     )
                 }
             </div>
