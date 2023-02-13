@@ -3,11 +3,14 @@ import phonebookService from './services/phonebook'
 import './index.css'
 
 const App = () => {
+    const nullNotification = {message: '', notificationType: ''}
+
     const [filter, setFilter] = useState('')
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
-    const [notification, setNotification] = useState(null)
+    const [notification, setNotification] = useState(nullNotification)
+
 
     useEffect(() => {
         phonebookService.getAll()
@@ -19,8 +22,7 @@ const App = () => {
     const handleAddPerson = (event) => {
         event.preventDefault()
         let personObject = {
-            name: newName,
-            number: newNumber
+            name: newName, number: newNumber
         }
         if (persons.find(person => person.name === newName)) {
             if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
@@ -29,12 +31,21 @@ const App = () => {
                     .then(() => {
                         personObject = {...personObject, id: personId}
                         setPersons(persons.map(person => person.id !== personId ? person : personObject))
+                    }).catch(error => {
+                    setNotification({
+                        message: `Information of ${personObject.name} has already been removed from server`,
+                        notificationType: 'error'
                     })
+                    setTimeout(() => {
+                        setNotification(nullNotification)
+                    }, 5000)
+                    setPersons(persons.filter(person => person.id !== personId))
+                })
                 setNewName('')
                 setNewNumber('')
-                setNotification(`Updated number for ${personObject.name}`)
+                setNotification({message: `Updated number for ${personObject.name}`, notificationType: 'success'})
                 setTimeout(() => {
-                    setNotification(null)
+                    setNotification(nullNotification)
                 }, 5000)
             }
             return
@@ -46,9 +57,11 @@ const App = () => {
             })
         setNewName('')
         setNewNumber('')
-        setNotification(`Added ${personObject.name}`)
+        setNotification({
+            message: `Added ${personObject.name}`, notificationType: 'success'
+        })
         setTimeout(() => {
-            setNotification(null)
+            setNotification(nullNotification)
         }, 5000)
     }
 
@@ -57,14 +70,23 @@ const App = () => {
             phonebookService.remove(id)
                 .then(() => {
                     setPersons(persons.filter(person => person.id !== id))
-                });
+                })
+                .catch(error => {
+                    setNotification({
+                        message: `Information of ${persons.find(person => person.id === id).name} has already been removed from server`,
+                        notificationType: 'error'
+                    })
+                    setTimeout(() => {
+                        setNotification(nullNotification)
+                    }, 5000)
+                    setPersons(persons.filter(person => person.id !== id))
+                })
         }
     }
 
-    return (
-        <div>
+    return (<div>
             <h2>Phonebook</h2>
-            <Notification message={notification}/>
+            <Notification message={notification.message} notificationType={notification.notificationType}/>
             <Filter filter={filter} setFilter={setFilter}/>
             <NewContact newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}
                         handleAddPerson={handleAddPerson}/>
@@ -74,21 +96,18 @@ const App = () => {
     )
 }
 
-const Notification = ({message}) => {
-    if (message === null) {
+const Notification = ({message, notificationType}) => {
+    if (message === '' || notificationType === '') {
         return null
     }
 
-    return (
-        <div className='success'>
+    return (<div className={notificationType + ' notification'}>
             {message}
-        </div>
-    )
+        </div>)
 }
 
 const Filter = ({filter, setFilter}) => {
-    return (
-        <div>
+    return (<div>
             <h3>Filter</h3>
             <div>
                 Filter shown with:
@@ -97,13 +116,11 @@ const Filter = ({filter, setFilter}) => {
                     onChange={event => setFilter(event.target.value)}
                 />
             </div>
-        </div>
-    )
+        </div>)
 }
 
 const NewContact = ({newName, setNewName, newNumber, setNewNumber, handleAddPerson}) => {
-    return (
-        <div>
+    return (<div>
             <h3>Add New Contact</h3>
             <form>
                 <div>
@@ -124,29 +141,22 @@ const NewContact = ({newName, setNewName, newNumber, setNewNumber, handleAddPers
                     <button type="submit" onClick={handleAddPerson}>add</button>
                 </div>
             </form>
-        </div>
-    )
+        </div>)
 }
 
 const People = ({persons, filter, handleDelete}) => {
 
-    return (
-        <div>
+    return (<div>
             <h3>People</h3>
             <div>
-                {
-                    persons.filter(person =>
-                        person.name.toLowerCase().includes(filter.toLowerCase())
-                    ).map(person =>
-                        <div key={person.id}>
-                            {person.name} {person.number}
-                            <button onClick={() => {
-                                handleDelete(person.id)
-                            }}>Delete
-                            </button>
-                        </div>
-                    )
-                }
+                {persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())).map(person => <div
+                    key={person.id}>
+                    {person.name} {person.number}
+                    <button onClick={() => {
+                        handleDelete(person.id)
+                    }}>Delete
+                    </button>
+                </div>)}
             </div>
         </div>
 
