@@ -1,11 +1,13 @@
 import {useState, useEffect} from 'react'
 import phonebookService from './services/phonebook'
+import './index.css'
 
 const App = () => {
     const [filter, setFilter] = useState('')
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
+    const [notification, setNotification] = useState(null)
 
     useEffect(() => {
         phonebookService.getAll()
@@ -30,10 +32,12 @@ const App = () => {
                     })
                 setNewName('')
                 setNewNumber('')
-                return
-            } else {
-                return
+                setNotification(`Updated number for ${personObject.name}`)
+                setTimeout(() => {
+                    setNotification(null)
+                }, 5000)
             }
+            return
         }
         phonebookService.create(personObject)
             .then((data) => {
@@ -42,6 +46,10 @@ const App = () => {
             })
         setNewName('')
         setNewNumber('')
+        setNotification(`Added ${personObject.name}`)
+        setTimeout(() => {
+            setNotification(null)
+        }, 5000)
     }
 
     const handleDelete = (id) => {
@@ -56,12 +64,25 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={notification}/>
             <Filter filter={filter} setFilter={setFilter}/>
             <NewContact newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber}
                         handleAddPerson={handleAddPerson}/>
             <People persons={persons} filter={filter} handleDelete={handleDelete}/>
         </div>
 
+    )
+}
+
+const Notification = ({message}) => {
+    if (message === null) {
+        return null
+    }
+
+    return (
+        <div className='success'>
+            {message}
+        </div>
     )
 }
 
