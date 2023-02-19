@@ -12,16 +12,12 @@ function App() {
         })
     }, [])
 
-    const handleSearch = (event) => {
-        setFilter(event.target.value);
-    }
-
     let countriesFiltered = countriesList.filter(country => country.name.common.toLowerCase().includes(filter.toLowerCase()));
 
     return (
         <div>
             <Filter filter={filter} setFilter={setFilter}/>
-            <CountryList countriesFiltered={countriesFiltered}/>
+            <CountryList countriesFiltered={countriesFiltered} setFilter={setFilter}/>
             <CountryDetails countriesFiltered={countriesFiltered}/>
         </div>
     )
@@ -42,7 +38,7 @@ function Filter({filter, setFilter}) {
     );
 }
 
-function CountryList({countriesFiltered}) {
+function CountryList({countriesFiltered, setFilter}) {
     if (countriesFiltered.length === 1) {
         return;
     }
@@ -64,6 +60,10 @@ function CountryList({countriesFiltered}) {
                     country =>
                         <div key={country.cca3}>
                             {country.name.common}
+                            <button onClick={() => {
+                                setFilter(country.name.common)
+                            }}>show
+                            </button>
                         </div>
                 )
             }
