@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import countries from "./services/countries";
+import openWeather from "./services/weather";
 
 
 function App() {
@@ -99,9 +100,46 @@ function CountryDetails({countriesFiltered}) {
                 <div>
                     <img src={countriesFiltered[0].flags.png} alt="Flag"/>
                 </div>
+                <Weather capital={countriesFiltered[0].capital[0]} countryCode={countriesFiltered[0].cca2}/>
             </div>
         );
     }
+}
+
+function Weather({capital, countryCode}) {
+    const [weather, setWeather] = React.useState([]);
+
+    useEffect(() => {
+        openWeather.getWeather(capital, countryCode).then(data => {
+            setWeather(data);
+        })
+    }, [])
+
+    if (weather.length === 0) {
+        return (
+            <div>
+                <h2>Weather in {capital}</h2>
+                <div>
+                    Loading...
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <h2>Weather in {capital}</h2>
+            <div>
+                <img src={`http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt="Weather icon"/>
+            </div>
+            <div>
+                <b>Temperature: </b>{(weather.main.temp - 273.15).toFixed(1)}°C
+            </div>
+            <div>
+                <b>Wind: </b>{weather.wind.speed} m/s
+            </div>
+        </div>
+    );
 }
 
 export default App;
